@@ -99,17 +99,20 @@ def t_RESERVED(t):
 lexer = lex.lex()
 
 # read input file
-with open('./input.txt', 'r') as input_file:
-    code = input_file.read()
+input_code = open('./input.txt', 'r').read()
 
 # Give the lexer some input
-lexer.input(code)
+lexer.input(input_code)
 
-print(lexer.next())
-
+output = ''
 # Tokenize
 while True:
     tok = lexer.token()
     if not tok:
         break  # No more input
-    print(tok)
+    output += str(tok) + '\n'
+
+# print(output)
+
+output_file = open('./output.txt', 'w')
+output_file.write(output)
