@@ -99,7 +99,7 @@ class SymbolTable:
         variable["declared"] = True
         return variable["index"]
 
-    def install_procedure(self, procedure):
+    def install_ravie(self, procedure):
         procedure_table = self.table_stack[-1]
         procedure_table.function_name = procedure["place"]
         parent_table = self.table_stack[-2]

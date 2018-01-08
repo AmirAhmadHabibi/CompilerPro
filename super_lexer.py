@@ -82,13 +82,13 @@ def t_NEWLINE(t):
 
 @TOKEN(realconst)
 def t_REALCONST(t):
-    t.value = {"value": float(t.value[1:]), "type": "float"}
+    t.value = {"value": float(t.value), "type": "float"}
     return t
 
 
 @TOKEN(adadsabet)
 def t_ADADSABET(t):
-    t.value = {"value": int(t.value[1:]), "type": "int"}
+    t.value = {"value": int(t.value), "type": "int"}
     return t
 
 
