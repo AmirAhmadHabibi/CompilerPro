@@ -40,7 +40,7 @@ def p_declarations_list(p):
 
 
 def p_declarations(p):
-    """declarations     : type_specifiers declarator_list SEMICOLON"""
+    """declarations     : taeen_type declarator_list SEMICOLON"""
     declarations = []
     for declarator in p[2]["declarations_info"]:
         declarator["type"] = p[1]["type"]
@@ -60,11 +60,11 @@ def p_declarations(p):
     return
 
 
-def p_type_specifiers(p):
-    """type_specifiers      : INT
-                            | FLOAT
-                            | CHAR
-                            | BOOLEAN"""
+def p_taeen_type(p):
+    """taeen_type      : INT
+                        | FLOAT
+                        | CHAR
+                        | BOOLEAN"""
     if p[1] == "boolean":
         p[1] = "bool"
     elif p[1] == "float":
@@ -304,6 +304,7 @@ def p_statement_function_return(p):
 def p_statement_if(p):
     """statement            : AGAR ebarat_bool ANGAH qis statement
                             | AGAR ebarat_bool ANGAH qis statement VAGARNA qis_1 statement"""
+    # print(list(p))
     code_array.backpatch_e_list(p[2]["t_list"], p[4]["quad_index"])
     if len(p) == 6:
         code_array.backpatch_e_list(p[2]["f_list"], code_array.get_next_quad_index())
@@ -479,20 +480,20 @@ def p_ebarat_function_call(p):
 
 def p_ebarat_sabet(p):
     """ebarat_sabet     : ADADSABET
-                                | REALCONST
-                                | HARF
-                                | BOOLSABET"""
+                        | REALCONST
+                        | HARF
+                        | BOOLSABET"""
     p[0] = p[1]
     return
 
 
 def p_ebarat_bool_comparator(p):
-    """ebarat_bool     : LT zojmoratab
-                            | LE zojmoratab
-                            | GT zojmoratab
-                            | GE zojmoratab
-                            | EQ zojmoratab
-                            | NEQ zojmoratab"""
+    """ebarat_bool      : LT zojmoratab
+                        | LE zojmoratab
+                        | GT zojmoratab
+                        | GE zojmoratab
+                        | EQ zojmoratab
+                        | NEQ zojmoratab"""
     p[0] = {"t_list": [code_array.get_next_quad_index() + 1],
             "f_list": [code_array.get_next_quad_index() + 2],
             "type": "bool"}
@@ -597,12 +598,12 @@ def p_ebarat_bool_not(p):
 
 
 def p_ebarat_riazi(p):
-    """ebarat_riazi       : PLUS zojmoratab
-                                    | MINUS zojmoratab
-                                    | MULT zojmoratab
-                                    | DIV zojmoratab
-                                    | MOD zojmoratab
-                                    | MINUS ebarat"""
+    """ebarat_riazi         : PLUS zojmoratab
+                            | MINUS zojmoratab
+                            | MULT zojmoratab
+                            | DIV zojmoratab
+                            | MOD zojmoratab
+                            | MINUS ebarat"""
     if p.slice[2].type == "ebarat":
         exp_type = get_type_of_arithmetic_expression(p[1], "int", p[2]["type"], p.slice[1])
         p[2] = code_array.store_boolean_expression_in_variable(p[2])

@@ -8,17 +8,17 @@ program #ex444
     char #ch212[#im120..#jc230] := {'c'};
     ravie #fu555 (int #in111; boolean #wh121;) {
         int #mi111 := 2;
-        int #cd232 := (#in111, 3) +;
+        int #cd232 := 56;
         {
-            agar ((#wh121, true)va angah) angah bazgasht
-            (#cd232,#mi111)+;
-            vagarna bazgasht (#cd232, #mi111)-;
+            agar va angah(#wh121, true) angah bazgasht
+            + (#cd232, #mi111)
+            vagarna bazgasht -(#cd232, #mi111);
         }
     };
     ravie #ab445 (int #in222;) {
         {
-            agar (#in222, 0)> angah bazgasht #in222;
-            vagarna bazgasht (-1, #in222)*;
+            agar >(#in222, 0) angah bazgasht #in222
+            vagarna bazgasht *(-1, #in222);
         }
     }
 main {
