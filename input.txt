@@ -20,9 +20,9 @@ program #ex444
             agar >(#in222, 0) angah bazgasht #in222
             vagarna bazgasht *(-1, #in222);
         }
-    }
+    };
 main {
-    #rp234 := (((2, #rp234)*),(3,#rp234)-),4)%;
+    #rp234 := % ((( * (2, #rp234)), - (3,#rp234)), 4);
     do {
         #im120 := #ab445((#im120, #kf222)-);
         exit when ((#ar111[2], 0)>)naghiz
