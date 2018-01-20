@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from super_lexer import lexer
+from super_lexer import tokens, lexer
 
 start = 'program'
 

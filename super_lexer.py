@@ -1,6 +1,5 @@
 import ply.lex as lex
 from ply.lex import TOKEN
-from super_assets import CompilationException, symbol_table
 import copy
 
 # reserved words
@@ -128,20 +127,11 @@ def t_RESERVED(t):
 @TOKEN(shenase)
 def t_SHENASE(t):
     t.type = reserved.get(t.value, 'SHENASE')  # Check for reserved words
-    # if t.type == "SHENASE":
-        # if t.value in symbol_table:
-        #     index = symbol_table.index(t.value)
-        #     t.value = copy.deepcopy(symbol_table[index])
-        # else:
-        #     t.value = symbol_table.get_new_variable_dictionary(t.value)
     return t
 
 
 def t_error(t):
-    # raise CompilationException("Illegal character " + str(t.value[0]), t)
-    # t.lexer.skip(1)
-    print('lex error!')
-    pass
+    print('Lex Error!')
 
 
 # Build the lexer
