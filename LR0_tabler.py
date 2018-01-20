@@ -24,7 +24,7 @@ class LR0er:
         for rule in self.rules:
             for nt in self.non_terminals:
                 if nt in rule.r and nt not in rule.l:
-                    candidates.remove(nt)
+                    candidates.discard(nt)
         return candidates
 
     def get_rules_for(self, nt):
@@ -163,15 +163,33 @@ class State:
         return next_rules
 
 
-str_grm = """S->aS
-            S->bA
-            S->cB
+# str_grm = """S->aS
+#             S->bA
+#             S->cB
+#             A->d
+#             A->h
+#             B->r
+#             B->g
+#
+#             Terminals: a,b,c,d,h,r,g
+#             Non-Terminals: S, A, B"""
+#
+# str_grm = """S->E
+#             E->T;
+#             E->T+E
+#             T->int
+#             T->(E)
+#
+#             Terminals: ; , (, ), int, +
+#             Non-Terminals: S, E, T"""
+
+str_grm = """S->A
+            S->B
+            A->bA
             A->d
-            A->h
-            B->r
-            B->g
+            B->aB
+            B->c
             
-            Terminals: a,b,c,d,h,r,g
+            Terminals: a, b, d, c
             Non-Terminals: S, A, B"""
-aut = LR0er(str_grm)
-# print([str(r) for r in aut.rules])
+LR0er(str_grm)
