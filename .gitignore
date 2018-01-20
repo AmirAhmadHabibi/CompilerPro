@@ -1,2 +1,7 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
+/parsing_table.py
+/parser.out
+/io/
+__pycache__/
+ply/
