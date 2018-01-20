@@ -220,7 +220,7 @@ def p_error(p):
 # yacc.yacc(method='LALR', tabmodule="parsing_table")
 
 try:
-    parser = yacc.yacc(tabmodule="parsing_table")
+    parser = yacc.yacc(method='LALR', tabmodule="parsing_table")
     with open("./io/input.txt", 'r') as input_file:
         code = input_file.read()
     parser.parse(code, lexer=lexer, debug=False, tracking=True)
