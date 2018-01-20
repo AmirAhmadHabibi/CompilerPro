@@ -10,6 +10,7 @@ class LR0er:
         self.start_symbols = self.find_start_symbols()
         self.state_list = []
         self.build_state(rules=self.get_rules_for(self.start_symbols))
+        self.print_table()
 
     def read_grammar(self, grammar):
         rules, t, therest = grammar.partition('Terminals:')
@@ -54,7 +55,24 @@ class LR0er:
                 if st.has_rules(next_rules):
                     s.goto[tok] = st.number
             if s.goto[tok] == -1:
+                s.goto[tok] = len(self.state_list)
                 self.build_state(next_rules)
+
+    def print_table(self):
+        cols = list(self.terminals) + list(self.non_terminals)
+        table = '__'
+        for col in cols:
+            table += '\t\t' + col
+        table += '\t\tAction\n'
+        for st in self.state_list:
+            table += 'S' + str(st.number)
+            for col in cols:
+                if col in st.goto:
+                    table += '\t\t' + str(st.goto[col])
+                else:
+                    table += '\t\t_'
+            table += '\t\t' + st.action + '\n'
+        print(table)
 
 
 class Rule:
@@ -82,12 +100,12 @@ class State:
         self.number = number
         self.lr0er = lr0er
         self.rules = rules
+        self.action = None
         self.handle = False
         self.goto = dict()
         self.expand_rules()
 
     def expand_rules(self):
-        flag = True
         checked_rules = set()
         while True:
             new_rules = set()
@@ -98,6 +116,8 @@ class State:
                 if rule.pointer == len(rule.r):
                     self.handle = True
                     self.print()
+                    # set action
+                    self.action = 'reduce ' + str(rule)
                     return
                 checked_rules.add(rule)
 
@@ -114,14 +134,18 @@ class State:
         for rule in self.rules:
             self.goto[rule.r[rule.pointer]] = -1
 
+        # set action
+        self.action = 'shift'
+
         # print the state
         self.print()
 
     def print(self):
         print(self.number, '-----')
         for rule in self.rules:
-            print(rule, rule.pointer)
-        print('-------')
+            r = str(rule.r) + ' '
+            print(rule.l + '->' + r[:rule.pointer] + '.' + r[rule.pointer:])
+        print('-------\n')
 
     def has_rules(self, rules):
         for rule in rules:
