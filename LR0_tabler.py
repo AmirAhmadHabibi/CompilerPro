@@ -11,27 +11,29 @@ class LR0er:
         self.start_symbols = self.find_start_symbols()
         self.state_list = []
         self.build_state(rules=self.get_rules_for(self.start_symbols))
-        self.print_table()
+        print(self.get_table())
 
     def read_grammar(self, grammar):
         rules, t, therest = grammar.partition('Terminals:')
         terminals, nt, non_terminals = therest.partition('Non-Terminals:')
         self.terminals = set(filter(None, re.split(' |,', terminals.strip())))
         self.non_terminals = set(filter(None, re.split(' |,', non_terminals.strip())))
-
         self.rules = set()
         toks = list(sorted(self.terminals)) + list(sorted(self.non_terminals))
         for rule in rules.split('\n'):
+            print(rule)
             rule = rule.strip()
             if rule == '' or rule is None:
                 continue
             l, s, r = rule.partition('->')
+            l = l.strip()
+            r = r.strip()
             r_list = []
             while len(r) > 0:
                 for tok in toks:
                     if r.startswith(tok):
                         r_list.append(tok)
-                        r = r[len(tok):]
+                        r = r[len(tok):].strip()
                         break
             self.rules.add(Rule(l, r_list))
 
@@ -74,7 +76,7 @@ class LR0er:
                 s.goto[tok] = len(self.state_list)
                 self.build_state(next_rules)
 
-    def print_table(self):
+    def get_table(self):
         cols = list(sorted(self.terminals)) + list(sorted(self.non_terminals))
         headers = ['State']
         for col in cols:
@@ -90,7 +92,7 @@ class LR0er:
                     row.append('-')
             row.append(st.action)
             rows.append(row)
-        print(tabulate(rows, headers))
+        return tabulate(rows, headers)
 
 
 class Rule:
@@ -137,7 +139,7 @@ class State:
                 # if it's handle don't expand
                 if rule.pointer == len(rule.r):
                     self.handle = True
-                    self.print()
+                    print(str(self))
                     if rule.l in self.lr0er.start_symbols:
                         self.action = 'ACCEPT'
                     else:
@@ -160,10 +162,10 @@ class State:
 
         self.action = 'shift'
 
-        self.print()
+        print(str(self))
 
-    def print(self):
-        print(self.number, '-----')
+    def __str__(self):
+        st = 'S'+str(self.number) + '-----\n'
         for rule in self.rules:
             rule_str = rule.l + '->'
             for tok in rule.r[:rule.pointer]:
@@ -171,8 +173,9 @@ class State:
             rule_str += '.'
             for tok in rule.r[rule.pointer:]:
                 rule_str += tok
-            print(rule_str)
-        print('-------\n')
+            st += rule_str + '\n'
+        st += '-------\n'
+        return st
 
     def has_rules(self, rules):
         for rule in rules:
@@ -190,34 +193,45 @@ class State:
         return next_rules
 
 
-str_grm = ["""S->aS
-              S->bA
-              S->cB
-              A->d
-              A->h
-              B->r
-              B->g
-  
-              Terminals: a,b,c,d,h,r,g
-              Non-Terminals: S, A, B""",
-           """S->E
-              E->T;
-              E->T+E
-              T->int
-              T->(E)
-    
-              Terminals: ; , (, ), int, +
-              Non-Terminals: S, E, T""",
-           """S->A
-              S->B
-              A->bA
-              A->d
-              B->aB
-              B->c
-  
-              Terminals: a, b, d, c
-              Non-Terminals: S, A, B""",
-           """S->a
-              Terminals: a
-              Non-Terminals: S, E"""]
-LR0er(str_grm[1])
+# smpl_grm = ["""S->aS
+#               S->bA
+#               S->cB
+#               A->d
+#               A->h
+#               B->r
+#               B->g
+#
+#               Terminals: a,b,c,d,h,r,g
+#               Non-Terminals: S, A, B""",
+#            """S->E
+#               E->T;
+#               E->T+E
+#               T->int
+#               T->(E)
+#
+#               Terminals: ; , (, ), int, +
+#               Non-Terminals: S, E, T""",
+#            """S->A
+#               S->B
+#               A->bA
+#               A->d
+#               B->aB
+#               B->c
+#
+#               Terminals: a, b, d, c
+#               Non-Terminals: S, A, B""",
+#            """S->a
+#               Terminals: a
+#               Non-Terminals: S, E"""]
+# aut = LR0er(smpl_grm[0])
+
+# ./io/input_grammar.txt
+path = input('grammar file path: ')
+with open(str(path.strip()), 'r') as infile:
+    grammar = infile.read()
+aut = LR0er(str(grammar.strip()))
+
+with open("./G_output.txt", 'w') as outfile:
+    for st in aut.state_list:
+        outfile.write(str(st)+'\n')
+    outfile.write('\n'+aut.get_table())
