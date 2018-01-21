@@ -123,7 +123,8 @@ def p_onsor_mored(p):
 
 
 def p_default(p):
-    """default          : DEFAULT COLON block"""
+    """default          : DEFAULT COLON block
+                        |"""
 
 
 def p_ebarat(p):
@@ -154,7 +155,7 @@ def p_ebarat_bool(p):
                         | zojmoratab GE
                         | zojmoratab EQ
                         | zojmoratab NEQ
-                        |  ebarat NAGHIZ"""
+                        | ebarat NAGHIZ"""
 
 
 def p_ebarat_riazi(p):
@@ -167,7 +168,7 @@ def p_ebarat_riazi(p):
 
 
 def p_zojmoratab(p):
-    """zojmoratab     : LPAR ebarat COMMA ebarat RPAR"""
+    """zojmoratab       : LPAR ebarat COMMA ebarat RPAR"""
 
 
 def p_error(p):
