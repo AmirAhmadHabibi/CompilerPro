@@ -1,4 +1,5 @@
 import re
+from tabulate import tabulate
 
 
 class LR0er:
@@ -14,10 +15,25 @@ class LR0er:
 
     def read_grammar(self, grammar):
         rules, t, therest = grammar.partition('Terminals:')
-        self.rules = set([Rule(rl) for rl in rules.split()])
         terminals, nt, non_terminals = therest.partition('Non-Terminals:')
         self.terminals = set(filter(None, re.split(' |,', terminals.strip())))
         self.non_terminals = set(filter(None, re.split(' |,', non_terminals.strip())))
+
+        self.rules = set()
+        toks = list(sorted(self.terminals)) + list(sorted(self.non_terminals))
+        for rule in rules.split('\n'):
+            rule = rule.strip()
+            if rule == '' or rule is None:
+                continue
+            l, s, r = rule.partition('->')
+            r_list = []
+            while len(r) > 0:
+                for tok in toks:
+                    if r.startswith(tok):
+                        r_list.append(tok)
+                        r = r[len(tok):]
+                        break
+            self.rules.add(Rule(l, r_list))
 
     def find_start_symbols(self):
         candidates = set(self.non_terminals)
@@ -59,32 +75,38 @@ class LR0er:
                 self.build_state(next_rules)
 
     def print_table(self):
-        cols = list(self.terminals) + list(self.non_terminals)
-        table = '__'
+        cols = list(sorted(self.terminals)) + list(sorted(self.non_terminals))
+        headers = ['State']
         for col in cols:
-            table += '\t\t' + col
-        table += '\t\tAction\n'
+            headers.append(col)
+        headers.append('Action')
+        rows = []
         for st in self.state_list:
-            table += 'S' + str(st.number)
+            row = ['S' + str(st.number)]
             for col in cols:
                 if col in st.goto:
-                    table += '\t\t' + str(st.goto[col])
+                    row.append(str(st.goto[col]))
                 else:
-                    table += '\t\t_'
-            table += '\t\t' + st.action + '\n'
-        print(table)
+                    row.append('-')
+            row.append(st.action)
+            rows.append(row)
+        print(tabulate(rows, headers))
 
 
 class Rule:
-    def __init__(self, rl, pointer=0):
-        self.l, s, self.r = rl.partition('->')
+    def __init__(self, l, r, pointer=0):
+        self.l = l
+        self.r = r
         self.pointer = pointer
 
     def __str__(self):
-        return self.l + '->' + self.r
+        r_str = ''
+        for tok in self.r:
+            r_str += tok
+        return self.l + '->' + r_str
 
     def __copy__(self):
-        return Rule(self.__str__(), self.pointer)
+        return Rule(self.l, self.r.copy(), self.pointer)
 
     def __eq__(self, other):
         if str(self) == str(other) and self.pointer == other.pointer:
@@ -116,13 +138,15 @@ class State:
                 if rule.pointer == len(rule.r):
                     self.handle = True
                     self.print()
-                    # set action
-                    self.action = 'reduce ' + str(rule)
+                    if rule.l in self.lr0er.start_symbols:
+                        self.action = 'ACCEPT'
+                    else:
+                        self.action = 'reduce ' + str(rule)
                     return
                 checked_rules.add(rule)
 
                 current_tok = rule.r[rule.pointer]
-                if current_tok in self.lr0er.non_terminals:
+                if current_tok in self.lr0er.non_terminals:  # if before non-terminal
                     # then expand
                     new_rules = new_rules | self.lr0er.get_rules_for(current_tok)
             self.rules = self.rules | new_rules
@@ -134,17 +158,20 @@ class State:
         for rule in self.rules:
             self.goto[rule.r[rule.pointer]] = -1
 
-        # set action
         self.action = 'shift'
 
-        # print the state
         self.print()
 
     def print(self):
         print(self.number, '-----')
         for rule in self.rules:
-            r = str(rule.r) + ' '
-            print(rule.l + '->' + r[:rule.pointer] + '.' + r[rule.pointer:])
+            rule_str = rule.l + '->'
+            for tok in rule.r[:rule.pointer]:
+                rule_str += tok
+            rule_str += '.'
+            for tok in rule.r[rule.pointer:]:
+                rule_str += tok
+            print(rule_str)
         print('-------\n')
 
     def has_rules(self, rules):
@@ -163,33 +190,34 @@ class State:
         return next_rules
 
 
-# str_grm = """S->aS
-#             S->bA
-#             S->cB
-#             A->d
-#             A->h
-#             B->r
-#             B->g
-#
-#             Terminals: a,b,c,d,h,r,g
-#             Non-Terminals: S, A, B"""
-#
-# str_grm = """S->E
-#             E->T;
-#             E->T+E
-#             T->int
-#             T->(E)
-#
-#             Terminals: ; , (, ), int, +
-#             Non-Terminals: S, E, T"""
-
-str_grm = """S->A
-            S->B
-            A->bA
-            A->d
-            B->aB
-            B->c
-            
-            Terminals: a, b, d, c
-            Non-Terminals: S, A, B"""
-LR0er(str_grm)
+str_grm = ["""S->aS
+              S->bA
+              S->cB
+              A->d
+              A->h
+              B->r
+              B->g
+  
+              Terminals: a,b,c,d,h,r,g
+              Non-Terminals: S, A, B""",
+           """S->E
+              E->T;
+              E->T+E
+              T->int
+              T->(E)
+    
+              Terminals: ; , (, ), int, +
+              Non-Terminals: S, E, T""",
+           """S->A
+              S->B
+              A->bA
+              A->d
+              B->aB
+              B->c
+  
+              Terminals: a, b, d, c
+              Non-Terminals: S, A, B""",
+           """S->a
+              Terminals: a
+              Non-Terminals: S, E"""]
+LR0er(str_grm[1])

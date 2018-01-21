@@ -4,4 +4,5 @@
 /parser.out
 /io/
 __pycache__/
-ply/
+/ply-3.10/
+/proj_def/
